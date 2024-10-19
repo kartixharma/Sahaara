@@ -20,7 +20,7 @@ class FileRepository(
     private val httpClient: HttpClient,
     private val fileReader: FileReader,
 ) {
-    fun uploadFile(contentUri: Uri): Flow<UploadResult> = channelFlow {
+    fun uploadWoundFile(contentUri: Uri): Flow<WoundUploadResult> = channelFlow {
         val info = fileReader.uriToFileInfo(contentUri)
 
         try {
@@ -36,20 +36,107 @@ class FileRepository(
                 method = HttpMethod.Post
                 onUpload { bytesSentTotal, totalBytes ->
                     if (totalBytes > 0L) {
-                        send(UploadResult.Progress(bytesSentTotal, totalBytes))
+                        send(WoundUploadResult.Progress(bytesSentTotal, totalBytes))
                     }
                 }
             }.body<Wound>()
-
-            send(UploadResult.Success(response))
+            send(WoundUploadResult.Success(response))
+            try {
+                val response2: InjuryInfo = httpClient.submitFormWithBinaryData(
+                    url = "http://192.168.131.121:8000/wound",
+                    formData = formData {
+                        append("file", info.bytes, Headers.build {
+                            append(HttpHeaders.ContentType, info.mimeType)
+                            append(HttpHeaders.ContentDisposition, "filename=${info.name}")
+                        })
+                    }
+                ) {
+                    method = HttpMethod.Patch
+                    onUpload { bytesSentTotal, totalBytes ->
+                        if (totalBytes > 0L) {
+                            send(WoundUploadResult.Progress(bytesSentTotal, totalBytes))
+                        }
+                    }
+                }.body<InjuryInfo>()
+                send(WoundUploadResult.MoreInfo(response2))
+            } catch (e: Exception) {
+                close(e)
+            }
         } catch (e: Exception) {
-            close(e)
+            send(WoundUploadResult.Error(e))
         }
     }
+
+
+    fun uploadFoodFile(contentUri: Uri): Flow<FoodUploadResult> = channelFlow {
+        val info = fileReader.uriToFileInfo(contentUri)
+
+        try {
+            val response: FoodResponse = httpClient.submitFormWithBinaryData(
+                url = "http://192.168.131.121:8000/food",
+                formData = formData {
+                    append("file", info.bytes, Headers.build {
+                        append(HttpHeaders.ContentType, info.mimeType)
+                        append(HttpHeaders.ContentDisposition, "filename=${info.name}")
+                    })
+                }
+            ) {
+                method = HttpMethod.Post
+                onUpload { bytesSentTotal, totalBytes ->
+                    if (totalBytes > 0L) {
+                        send(FoodUploadResult.Progress(bytesSentTotal, totalBytes))
+                    }
+                }
+            }.body<FoodResponse>()
+            send(FoodUploadResult.Success(response))
+        } catch (e: Exception) {
+            send(FoodUploadResult.Error(e))
+        }
+    }
+
+    fun uploadObjectFile(contentUri: Uri): Flow<ObjectUploadResult> = channelFlow {
+        val info = fileReader.uriToFileInfo(contentUri)
+
+        try {
+            val response: ObjectResponse = httpClient.submitFormWithBinaryData(
+                url = "http://192.168.131.121:8000/environment",
+                formData = formData {
+                    append("video_file", info.bytes, Headers.build {
+                        append(HttpHeaders.ContentType, info.mimeType)
+                        append(HttpHeaders.ContentDisposition, "filename=${info.name}")
+                    })
+                }
+            ) {
+                method = HttpMethod.Post
+                onUpload { bytesSentTotal, totalBytes ->
+                    if (totalBytes > 0L) {
+                        send(ObjectUploadResult.Progress(bytesSentTotal, totalBytes))
+                    }
+                }
+            }.body<ObjectResponse>()
+            send(ObjectUploadResult.Success(response))
+        } catch (e: Exception) {
+            send(ObjectUploadResult.Error(e))
+        }
+    }
+
 }
 
-sealed class UploadResult {
-    data class Progress(val bytesSent: Long, val totalBytes: Long) : UploadResult()
-    data class Success(val wound: Wound) : UploadResult()
-    data class Error(val exception: Throwable) : UploadResult()
+sealed class WoundUploadResult {
+    data class Progress(val bytesSent: Long, val totalBytes: Long) : WoundUploadResult()
+    data class Success(val wound: Wound) : WoundUploadResult()
+    data class MoreInfo(val info: InjuryInfo) : WoundUploadResult()
+    data class Error(val exception: Throwable) : WoundUploadResult()
+}
+
+sealed class FoodUploadResult {
+    data class Progress(val bytesSent: Long, val totalBytes: Long) : FoodUploadResult()
+    data class Success(val food: FoodResponse) : FoodUploadResult()
+    data class Error(val exception: Throwable) : FoodUploadResult()
+}
+
+sealed class ObjectUploadResult {
+    data class Progress(val bytesSent: Long, val totalBytes: Long) : ObjectUploadResult()
+    data class Success(val obj: ObjectResponse) : ObjectUploadResult()
+    data class Error(val exception: Throwable) : ObjectUploadResult()
 }

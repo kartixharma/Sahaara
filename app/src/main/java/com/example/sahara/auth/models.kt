@@ -1,5 +1,9 @@
 package com.example.sahara.auth
 
+import com.example.sahara.FoodResponse
+import com.example.sahara.FoodUploadResult
+import com.example.sahara.InjuryInfo
+import com.example.sahara.ObjectResponse
 import com.example.sahara.Wound
 
 
@@ -16,10 +20,27 @@ data class UserData (
     var email: String = "",
 )
 
-data class UploadState(
+data class HealthUploadState(
     val isUploading: Boolean = false,
     val isUploadComplete: Boolean = false,
     val message: String? = null,
     val progress: Float = 0f,
-    val wound: Wound? = null
+    val wound: Wound? = null,
+    val moreInfo: InjuryInfo? = null
+)
+
+data class FoodUploadState(
+    val isUploading: Boolean = false,
+    val isUploadComplete: Boolean = false,
+    val message: String? = null,
+    val progress: Float = 0f,
+    val food: FoodResponse? = null,
+)
+
+data class ObjectUploadState(
+    val isUploading: Boolean = false,
+    val isUploadComplete: Boolean = false,
+    val message: String? = null,
+    val progress: Float = 0f,
+    val obj: ObjectResponse? = null,
 )

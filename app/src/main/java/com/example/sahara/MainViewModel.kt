@@ -5,11 +5,14 @@ import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.sahara.auth.FoodUploadState
+import com.example.sahara.auth.HealthUploadState
+import com.example.sahara.auth.ObjectUploadState
 import com.example.sahara.auth.SignInResult
-import com.example.sahara.auth.UploadState
 import com.example.sahara.auth.UserData
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Job
@@ -27,6 +30,9 @@ class MainViewModel(
 ): ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
 
+    var woundImageUri by mutableStateOf<Uri?>(null)
+    var foodImageUri by mutableStateOf<Uri?>(null)
+    var objectVidUri by mutableStateOf<Uri?>(null)
     var signInState by mutableStateOf(false)
     var userData by mutableStateOf(UserData())
 
@@ -61,16 +67,17 @@ class MainViewModel(
         }
     }
 
-    var state by mutableStateOf(UploadState())
-        private set
+    var healthState by mutableStateOf(HealthUploadState())
+    var foodState by mutableStateOf(FoodUploadState())
+    var objectState by mutableStateOf(ObjectUploadState())
 
     private var uploadJob: Job? = null
 
-    fun uploadFile(contentUri: Uri) {
+    fun uploadWoundFile(contentUri: Uri) {
         uploadJob = repository
-            .uploadFile(contentUri)
+            .uploadWoundFile(contentUri)
             .onStart {
-                state = state.copy(
+                healthState = healthState.copy(
                     isUploading = true,
                     isUploadComplete = false,
                     message = null,
@@ -79,29 +86,39 @@ class MainViewModel(
             }
             .onEach { result ->
                 when (result) {
-                    is UploadResult.Progress -> {
-                        state = state.copy(
+                    is WoundUploadResult.Progress -> {
+                        healthState = healthState.copy(
                             progress = result.bytesSent / result.totalBytes.toFloat()
                         )
                     }
-                    is UploadResult.Success -> {
-                        state = state.copy(
+                    is WoundUploadResult.Success -> {
+                        healthState = healthState.copy(
                             isUploading = false,
                             isUploadComplete = true,
                             wound = result.wound,
                             message = "Upload successful!"
                         )
-                        println(state.wound)
+                        println(healthState.wound)
                     }
 
-                    is UploadResult.Error -> TODO()
+                    is WoundUploadResult.Error -> {
+                        healthState = HealthUploadState()
+                    }
+                    is WoundUploadResult.MoreInfo -> {
+                        healthState = healthState.copy(
+                            isUploading = false,
+                            isUploadComplete = true,
+                            moreInfo = result.info
+                        )
+                    }
+
                 }
             }
             .onCompletion { cause ->
                 if (cause == null) {
-                    state = state.copy(isUploading = false)
+                    healthState = healthState.copy(isUploading = false)
                 } else if (cause is CancellationException) {
-                    state = state.copy(
+                    healthState = healthState.copy(
                         isUploading = false,
                         message = "The upload was cancelled!",
                         isUploadComplete = false,
@@ -116,7 +133,128 @@ class MainViewModel(
                     is UnresolvedAddressException -> "No internet!"
                     else -> "Something went wrong!"
                 }
-                state = state.copy(
+                healthState = healthState.copy(
+                    isUploading = false,
+                    message = message
+                )
+            }
+            .launchIn(viewModelScope)
+    }
+
+
+    fun uploadFoodFile(contentUri: Uri) {
+        uploadJob = repository
+            .uploadFoodFile(contentUri)
+            .onStart {
+                foodState = foodState.copy(
+                    isUploading = true,
+                    isUploadComplete = false,
+                    message = null,
+                    progress = 0f
+                )
+            }
+            .onEach { result ->
+                when (result) {
+                    is FoodUploadResult.Progress -> {
+                        foodState = foodState.copy(
+                            progress = result.bytesSent / result.totalBytes.toFloat()
+                        )
+                    }
+                    is FoodUploadResult.Success -> {
+                        foodState = foodState.copy(
+                            isUploading = false,
+                            isUploadComplete = true,
+                            food = result.food,
+                            message = "Upload successful!"
+                        )
+                    }
+
+                    is FoodUploadResult.Error -> {
+                        foodState = FoodUploadState()
+                    }
+
+                }
+            }
+            .onCompletion { cause ->
+                if (cause == null) {
+                    foodState = foodState.copy(isUploading = false)
+                } else if (cause is CancellationException) {
+                    foodState = foodState.copy(
+                        isUploading = false,
+                        message = "The upload was cancelled!",
+                        isUploadComplete = false,
+                        progress = 0f
+                    )
+                }
+            }
+            .catch { cause ->
+                val message = when (cause) {
+                    is OutOfMemoryError -> "File too large!"
+                    is FileNotFoundException -> "File not found!"
+                    is UnresolvedAddressException -> "No internet!"
+                    else -> "Something went wrong!"
+                }
+                foodState = foodState.copy(
+                    isUploading = false,
+                    message = message
+                )
+            }
+            .launchIn(viewModelScope)
+    }
+
+    fun uploadObjectFile(contentUri: Uri) {
+        uploadJob = repository
+            .uploadObjectFile(contentUri)
+            .onStart {
+                objectState = objectState.copy(
+                    isUploading = true,
+                    isUploadComplete = false,
+                    message = null,
+                    progress = 0f
+                )
+            }
+            .onEach { result ->
+                when (result) {
+                    is ObjectUploadResult.Progress -> {
+                        objectState = objectState.copy(
+                            progress = result.bytesSent / result.totalBytes.toFloat()
+                        )
+                    }
+                    is ObjectUploadResult.Success -> {
+                        objectState = objectState.copy(
+                            isUploading = false,
+                            isUploadComplete = true,
+                            obj = result.obj,
+                            message = "Upload successful!"
+                        )
+                    }
+
+                    is ObjectUploadResult.Error -> {
+                        objectState = ObjectUploadState()
+                    }
+
+                }
+            }
+            .onCompletion { cause ->
+                if (cause == null) {
+                    objectState = objectState.copy(isUploading = false)
+                } else if (cause is CancellationException) {
+                    objectState = objectState.copy(
+                        isUploading = false,
+                        message = "The upload was cancelled!",
+                        isUploadComplete = false,
+                        progress = 0f
+                    )
+                }
+            }
+            .catch { cause ->
+                val message = when (cause) {
+                    is OutOfMemoryError -> "File too large!"
+                    is FileNotFoundException -> "File not found!"
+                    is UnresolvedAddressException -> "No internet!"
+                    else -> "Something went wrong!"
+                }
+                foodState = foodState.copy(
                     isUploading = false,
                     message = message
                 )

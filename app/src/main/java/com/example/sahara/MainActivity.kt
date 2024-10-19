@@ -29,7 +29,6 @@ class MainActivity : ComponentActivity() {
         )
     }
     override fun onCreate(savedInstanceState: Bundle?) {
-        //FirebaseApp.initializeApp(this)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
@@ -94,7 +93,15 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("app") {
                         MainScreen(
-                            viewModel
+                            viewModel,
+                            onSignOut = {
+                                lifecycleScope.launch {
+                                    googleAuthUiClient.signOut()
+                                    Toast.makeText(applicationContext, "Signed out", Toast.LENGTH_LONG).show()
+                                    navController.navigate("signIn")
+                                }
+
+                            }
                         )
                     }
                 }
