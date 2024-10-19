@@ -118,10 +118,16 @@ fun MainScreen(
         mutableStateOf(0)
     }
     val file = File(context.filesDir, "temp.png")
+    val file1 = File(context.filesDir, "temp1.png")
     var uri = FileProvider.getUriForFile(
         context,
         "com.example.sahara.fileProvider",
         file
+    )
+    var uri2 = FileProvider.getUriForFile(
+        context,
+        "com.example.sahara.fileProvider",
+        file1
     )
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -150,27 +156,31 @@ fun MainScreen(
             }
         }
     )
-    val cLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.TakePicture()) {
-        viewModel.foodImageUri = null
-        if(it) {
+    val cLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.TakePicture()) { boolean ->
+        if(boolean) {
             val uric = compressImage(context, uri)
             uric?.let {
-                if(currentRoute == "Food") {
-                    viewModel.foodImageUri = uric
+                    viewModel.foodImageUri = null
+                    viewModel.foodImageUri = it
                     viewModel.foodState = FoodUploadState()
-                    viewModel.uploadFoodFile(uric)
-                }
-                if(currentRoute == "Health"){
-                    viewModel.woundImageUri = uric
-                    viewModel.healthState = HealthUploadState()
-                    viewModel.uploadWoundFile(uric)
-                }
+                    viewModel.uploadFoodFile(it)
+
+            }
+        }
+    }
+    val cLauncher2 = rememberLauncherForActivityResult(contract = ActivityResultContracts.TakePicture()) { boolean ->
+        if(boolean) {
+            val uric = compressImage(context, uri2)
+            uric?.let {
+                viewModel.woundImageUri = null
+                viewModel.woundImageUri = it
+                viewModel.healthState = HealthUploadState()
+                viewModel.uploadWoundFile(it)
             }
         }
     }
 
     val vLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.CaptureVideo()) {
-        viewModel.foodImageUri = null
         if(it) {
             viewModel.objectVidUri = uri
             viewModel.objectState = ObjectUploadState()
@@ -220,7 +230,8 @@ if(showDialog) {
                                 android.Manifest.permission.CAMERA
                             )
                         if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
-                            cLauncher.launch(uri)
+                            if(currentRoute == "Food") cLauncher.launch(uri)
+                            if(currentRoute == "Health") cLauncher2.launch(uri2)
                         } else {
                             permissionLauncher.launch(android.Manifest.permission.CAMERA)
                         }

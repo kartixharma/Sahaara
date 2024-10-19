@@ -186,7 +186,7 @@ fun Food(
                 ) {
                     Card(
                         colors = CardDefaults.cardColors(
-                            containerColor = if (food.vegan_friendly == "yes") {
+                            containerColor = if (food.vegan_friendly == "yes" || food.vegan_friendly == "Yes") {
                                 MaterialTheme.colorScheme.primaryContainer
                             } else {
                                 MaterialTheme.colorScheme.errorContainer

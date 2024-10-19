@@ -106,7 +106,6 @@ fun Health(
                 iterations = LottieConstants.IterateForever
             )
         }
-
     }
     else{
         Column(
@@ -118,20 +117,12 @@ fun Health(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (!viewModel.healthState.isUploading) {
-                viewModel.woundImageUri?.let {
-                    AsyncImage(
-                        model = it,
-                        contentDescription = "Selected Image",
-                        modifier = Modifier
-                            .size(250.dp)
-                    )
-                }
-
                 viewModel.healthState.wound?.let { wound ->
                     Text(
                         text = wound.message,
-                        fontSize = 16.sp,
-                        color = Color.Black,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(8.dp)
                     )
                     if (viewModel.healthState.moreInfo == null) {
