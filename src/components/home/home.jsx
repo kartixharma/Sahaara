@@ -1,25 +1,24 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import HomeImage from "../home/background3.jpeg";
-import { auth } from "../firebase"; // Ensure you import the necessary Firebase methods
+import { auth } from "../firebase"; 
 
 const Home = () => {
   const [userDetails, setUserDetails] = useState(null);
   const [description, setDescription] = useState("");
 
-  // Function to fetch user data and set user details
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         console.log("User is logged in:", user);
-        setUserDetails(user); // Set user details
+        setUserDetails(user);
       } else {
         console.log("User is not logged in");
-        setUserDetails(null); // Set user details to null if not logged in
+        setUserDetails(null);
       }
     });
 
-    return () => unsubscribe(); // Clean up the subscription on unmount
+    return () => unsubscribe();
   }, []);
 
   async function handleLogout() {
@@ -31,24 +30,6 @@ const Home = () => {
       console.error("Error logging out:", error.message);
     }
   }
-
-  const handleBlindAssistClick = async () => {
-    try {
-      const response = await axios.get("http://127.0.0.1:8000/description_provider/");
-      setDescription(response.data.description);
-    } catch (error) {
-      console.error("There was an error fetching the description!", error);
-    }
-  };
-
-  const handleMapAssistClick = async () => {
-    try {
-      const response = await axios.get("http://127.0.0.1:8000/map_description_provider/");
-      setDescription(response.data.description);
-    } catch (error) {
-      console.error("There was an error fetching the description!", error);
-    }
-  };
 
   return (
     <div
@@ -95,21 +76,7 @@ const Home = () => {
             href="/connect"
             className="bg-gradient-to-r from-teal-500 via-green-400 to-teal-500 hover:bg-right text-white text-xl font-semibold py-4 px-8 rounded-lg shadow-lg transition-all duration-500 ease-in-out"
           >
-            <button>Emergency Skin Injury Help</button>
-          </a>
-          <a
-            href="/form"
-            className="bg-gradient-to-r from-teal-500 via-green-400 to-teal-500 hover:bg-right text-white text-xl font-semibold py-4 px-8 rounded-lg shadow-lg transition-all duration-500 ease-in-out"
-            onClick={handleBlindAssistClick}
-          >
-            <button>Environment Detection Assist</button>
-          </a>
-          <a
-            href="/form"
-            className="bg-gradient-to-r from-teal-500 via-green-400 to-teal-500 hover:bg-right text-white text-xl font-semibold py-4 px-8 rounded-lg shadow-lg transition-all duration-500 ease-in-out"
-            onClick={handleMapAssistClick}
-          >
-            <button>Get Food Details</button>
+            <button>Our Services</button>
           </a>
         </div>
       </div>

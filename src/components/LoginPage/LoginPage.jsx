@@ -33,7 +33,7 @@ export const LoginPage = () => {
             if (response.status === 200) {
                 currentValue = response.data.val;
                 alert("Login successful!");
-                navigate('/'); // Navigate to the home page or any other page
+                navigate('/'); 
             }
         } catch (error) {
             console.error("There was an error logging in!", error);
