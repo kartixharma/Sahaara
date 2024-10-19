@@ -6,11 +6,13 @@ export const Connect = () => {
     const [message, setMessage] = useState(null); 
     const [loading, setLoading] = useState(false); 
     const [isFoodInfo, setIsFoodInfo] = useState(false); 
+    const [isEnvironmentInfo, setIsEnvironmentInfo] = useState(false); 
 
     const handleSubmitSkinDetection = async (event) => {
         event.preventDefault();
         setLoading(true); 
         setIsFoodInfo(false); 
+        setIsEnvironmentInfo(false);
         setMessage(null); 
 
         const fileInput = event.target.elements.skinFile;  
@@ -51,6 +53,7 @@ export const Connect = () => {
         event.preventDefault();
         setLoading(true); 
         setIsFoodInfo(true); 
+        setIsEnvironmentInfo(false); 
         setMessage(null); 
     
         const fileInput = event.target.elements.skinFile;
@@ -76,8 +79,40 @@ export const Connect = () => {
         } finally {
             setLoading(false);
         }
-    };    
-    
+    };
+
+    const handleSubmitEnvironmentInfo = async (event) => {
+        event.preventDefault();
+        setLoading(true); 
+        setIsEnvironmentInfo(true);
+        setIsFoodInfo(false);
+        setMessage(null);
+
+        const fileInput = event.target.elements.video_file;
+        const file = fileInput.files[0];
+
+        const formData = new FormData();
+        formData.append('video_file', file);
+
+        try {
+            const postResponse = await axios.post('http://192.168.131.121:8000/environment', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            const environmentInfo = postResponse.data;
+            console.log("Environment Info:", environmentInfo);
+
+            setMessage(environmentInfo);
+        } catch (error) {
+            console.error('Error:', error);
+            setMessage('Error encountered');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div
             className="w-screen h-screen flex flex-col justify-center items-center"
@@ -110,11 +145,11 @@ export const Connect = () => {
                 </div>
 
                 <div className="w-64 h-96 bg-transparent border-2 border-gray-300 backdrop-blur-lg shadow-lg text-white rounded-lg p-8">
-                    <h1 className="text-3xl font-bold text-center mb-4">Emergency Help 2</h1>
-                    <form onSubmit={handleSubmitSkinDetection}>
+                    <h1 className="text-3xl font-bold text-center mb-12">Environment Info</h1>
+                    <form onSubmit={handleSubmitEnvironmentInfo}>
                         <div className="relative w-full h-16 mb-8">
                             <input
-                                id="skinFile"
+                                id="video_file"
                                 type="file"
                                 required
                                 className="w-full h-full bg-transparent border-2 border-gray-300 outline-none rounded-full text-white text-base px-5 py-4"
@@ -130,7 +165,7 @@ export const Connect = () => {
                 </div>
 
                 <div className="w-64 h-96 bg-transparent border-2 border-gray-300 backdrop-blur-lg shadow-lg text-white rounded-lg p-8">
-                    <h1 className="text-3xl font-bold text-center mb-4">Food Info</h1>
+                    <h1 className="text-3xl font-bold text-center mb-12">Food Info</h1>
                     <form onSubmit={handleSubmitFoodInfo}>
                         <div className="relative w-full h-16 mb-8">
                             <input
@@ -156,27 +191,45 @@ export const Connect = () => {
                 ) : (
                     message && (  
                         <>
-                            {!isFoodInfo ? (  
-                                <p className="text-white">
-                                    <b>Category:</b> {message.category}
-                                    <br /><br />
-                                    <b>Treatment:</b> {message.treatment}
-                                    <br /><br />
-                                    <b>Severity:</b> {message.severity}
-                                    <br /><br />
-                                    <b>Symptoms:</b> {message.symptoms}
-                                    <br /><br />
-                                    <b>Complications:</b> {message.complications}
-                                    <br /><br />
-                                    <b>Medications:</b> {message.medications}
-                                    <br /><br />
-                                    <b>Prevention:</b> {message.prevention}
-                                    <br /><br />
-                                    <b>Recommended Action:</b> {message.recommended_action}
-                                    <br /><br />
-                                    <b>Alternative Remedies:</b> {message.alternative_remedies}
-                                </p>
-                            ) : (  
+                            {!isFoodInfo && !isEnvironmentInfo ? (  
+                                <div className="text-white">
+                                    <h2>Treatment Information for Cuts</h2>
+                                    <p><b>Category:</b> {message.category}</p>
+                                    
+                                    <p><b>Severity:</b> {message.severity}</p>
+                            
+                                    <p><b>Symptoms:</b> {message.symptoms.join(', ')}</p>
+                            
+                                    <p><b>Complications:</b> {message.complications.join(', ')}</p>
+                            
+                                    <p><b>Medications:</b> {message.medications.join(', ')}</p>
+                            
+                                    <p><b>Prevention:</b> {message.prevention.join(', ')}</p>
+                            
+                                    <p><b>Recovery Time:</b> {message.recovery_time.min_days} - {message.recovery_time.max_days} days</p>
+                            
+                                    <h3>Treatment Steps:</h3>
+                                    <ol>
+                                        {message.treatment.map((step, index) => (
+                                            <li key={index}>{step}</li>
+                                        ))}
+                                    </ol>
+                            
+                                    <h3>Recommended Actions:</h3>
+                                    <ul>
+                                        {message.recommended_action.map((action, index) => (
+                                            <li key={index}>{action}</li>
+                                        ))}
+                                    </ul>
+                            
+                                    <h3>Alternative Remedies:</h3>
+                                    <ul>
+                                        {message.alternative_remedies.map((remedy, index) => (
+                                            <li key={index}>{remedy}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ) : isFoodInfo ? (  
                                 <p className="text-white">
                                     <b>Name:</b> {message.name}
                                     <br /><br />
@@ -201,15 +254,28 @@ export const Connect = () => {
                                     </ul>
                                     <br /><br />
                                     <b>Allergens:</b> {message.allergens.join(', ')}
-                                    <br /><br />
-                                    <b>Health Ratings:</b> 
-                                    <ul>
-                                        <li><b>Overall:</b> {message.health_ratings.overall}</li>
-                                        <li><b>Sustainability Score:</b> {message.health_ratings.sustainability_score}</li>
-                                        <li><b>Ethical Score:</b> {message.health_ratings.ethical_score}</li>
-                                    </ul>
                                 </p>
-                            )}
+                            ) : isEnvironmentInfo ? (  
+                                <p className="text-white">
+                                    <b>Detected Objects:</b> {message.detected_objects.join(', ')}
+                                    <br /><br />
+                                    <b>Type:</b> {message.response.type}
+                                    <br /><br />
+                                    <b>Project Name:</b> {message.response.project_name}
+                                    <br /><br />
+                                    <b>Objects That Can Be Used:</b> {message.response.objects_that_can_be_used}
+                                    <br /><br />
+                                    <b>Time Taken:</b> {message.response.time_taken}
+                                    <br /><br />
+                                    <b>Materials Needed:</b> {message.response.detailed_process.materials_needed}
+                                    <br /><br />
+                                    <b>Instructions:</b> {message.response.detailed_process.instructions}
+                                    <br /><br />
+                                    <b>Tips:</b> {message.response.detailed_process.tips}
+                                    <br /><br />
+                                    <b>Time Required:</b> {message.response.time_require}
+                                </p>
+                            ) : null}
                         </>
                     )
                 )}
