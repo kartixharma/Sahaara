@@ -59,17 +59,22 @@ const Home = () => {
       </div>
 
       <div className="AppName">
-        <h1 className="text-left mb-20 text-4xl italic text-shadow-lg">Sahara</h1>
+        <span className="text-left mb-20 text-8xl italic font-bold text-shadow-lg text-[#ff6600]">Sa</span>
+        <span className="text-left mb-20 text-8xl italic font-bold text-shadow-lg text-white">h</span>
+        <span className="text-left mb-20 text-8xl italic font-bold text-shadow-lg text-[#1c1ca5]">a</span>
+        <span className="text-left mb-20 text-8xl italic font-bold text-shadow-lg text-white">a</span>
+        <span className="text-left mb-20 text-8xl italic font-bold text-shadow-lg text-[#046434]">ra</span>
       </div>
       <div className="lg:w-4/5 space-y-5 mt-10">
         <h1 className="text-5xl font-bold leading-tight">
           Empowering Best Choices for a Vibrant Life Your Trusted..
         </h1>
         <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam magnam
-          omnis natus accusantium quos. Reprehenderit incidunt expedita
-          molestiae impedit at sequi dolorem iste sit culpa, optio voluptates
-          fugiat vero consequatur?
+          <b>Skin Injury Detection and Solution Model</b>: This model is designed to assist users in identifying and managing skin injuries. It can provide immediate solutions and recommendations for treatment, making it especially useful in emergency situations.
+          <br /><br />
+          <b>Environmental Detection Model</b>: This model focuses on assessing the quality of the user's environment, including air, water, and soil quality. It is aimed at promoting awareness of environmental conditions that could affect health and well-being.
+          <br /><br />
+          <b>Food Information Detection Model</b>: This model is designed to provide users with nutritional information and safety assessments regarding their food choices. It aims to promote healthier eating habits and ensure food safety.
         </p>
         <div className="flex justify-between mt-10">
           <a

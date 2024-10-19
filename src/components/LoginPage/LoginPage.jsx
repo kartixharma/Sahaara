@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaUser, FaLock } from "react-icons/fa";
 import axios from 'axios';
-import LoginImage from "../LoginPage/background.jpg"
 import SignInWithGoogle from '../SignInWithGoogle';
 
 export let currentValue = 0;
@@ -42,14 +41,9 @@ export const LoginPage = () => {
     };
 
     return (
-        <div className="flex items-center justify-center w-screen h-screen bg-cover bg-center"
-        style={{
-            backgroundImage: `url(${LoginImage})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-        }}>
+        <div className="flex items-center justify-center w-screen h-screen bg-cover bg-center bg-blue-200">
             <div className="bg-white bg-opacity-20 backdrop-blur-sm border border-gray-300 rounded-lg shadow-lg p-8 w-96">
-                <h1 className="text-3xl font-bold text-center text-white">Login</h1>
+                <h1 className="text-3xl font-bold text-center text-blue-500">Login</h1>
                 <form onSubmit={handleOnSubmit}>
                     <SignInWithGoogle/>
                 </form>
