@@ -115,16 +115,18 @@ export const Connect = () => {
 
     return (
         <div
-            className="w-screen h-screen flex flex-col justify-center items-center"
-            style={{
-                backgroundImage: `url(${ConnectImage})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-            }}
+            className="w-screen min-h-screen flex flex-col justify-center items-center"
         >
-            <div className="flex space-x-6">
+            <div
+                className="absolute w-full h-full -z-50 bg-cover bg-center transition-transform duration-500"
+                style={{
+                    backgroundImage: `url(${ConnectImage})`,
+                    transform: (message) ? `scale(${1.5})` : `scale(${1.05})`,
+                }}
+            ></div>
+            <div className="flex flex-auto space-x-6 align-center items-center self-center">
 
-                <div className="w-64 h-96 bg-transparent border-2 border-gray-300 backdrop-blur-lg shadow-lg text-white rounded-lg p-8">
+                <div className="w-1/3 h-80 bg-transparent border-2 border-gray-300 backdrop-blur-lg shadow-lg text-white rounded-lg p-8">
                     <h1 className="text-3xl font-bold text-center mb-4">Emergency Skin Injury Help</h1>
                     <form onSubmit={handleSubmitSkinDetection}>
                         <div className="relative w-full h-16 mb-8">
@@ -144,7 +146,7 @@ export const Connect = () => {
                     </form>
                 </div>
 
-                <div className="w-64 h-96 bg-transparent border-2 border-gray-300 backdrop-blur-lg shadow-lg text-white rounded-lg p-8">
+                <div className="w-1/3 h-80 bg-transparent border-2 border-gray-300 backdrop-blur-lg shadow-lg text-white rounded-lg p-8">
                     <h1 className="text-3xl font-bold text-center mb-12">Environment Info</h1>
                     <form onSubmit={handleSubmitEnvironmentInfo}>
                         <div className="relative w-full h-16 mb-8">
@@ -164,7 +166,7 @@ export const Connect = () => {
                     </form>
                 </div>
 
-                <div className="w-64 h-96 bg-transparent border-2 border-gray-300 backdrop-blur-lg shadow-lg text-white rounded-lg p-8">
+                <div className="w-1/3 h-80 bg-transparent border-2 border-gray-300 backdrop-blur-lg shadow-lg text-white rounded-lg p-8">
                     <h1 className="text-3xl font-bold text-center mb-12">Food Info</h1>
                     <form onSubmit={handleSubmitFoodInfo}>
                         <div className="relative w-full h-16 mb-8">
