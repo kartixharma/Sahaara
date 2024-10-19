@@ -44,7 +44,9 @@ data class BottomNavigationItem(
 )
 
 @Composable
-fun MainScreen(){
+fun MainScreen(
+    viewModel: MainViewModel
+){
 
     val items = listOf(
         BottomNavigationItem(
@@ -128,7 +130,9 @@ fun MainScreen(){
                 Environment()
             }
             composable("Health") {
-
+                Health(
+                    viewModel
+                )
             }
             composable("Profile") {
 

@@ -14,6 +14,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.sahara.Network.KtorClient
 import com.example.sahara.auth.GoogleAuthUiClient
 import com.example.sahara.auth.SignInScreen
 import com.example.sahara.ui.theme.SaharaTheme
@@ -34,13 +35,20 @@ class MainActivity : ComponentActivity() {
         setContent {
             SaharaTheme {
                 val navController = rememberNavController()
-                val viewModel: MainViewModel = viewModel()
+                val viewModel = viewModel{
+                    MainViewModel(
+                        repository = FileRepository(
+                            KtorClient.httpClient,
+                            fileReader = FileReader(applicationContext)
+                        )
+                    )
+                }
                 NavHost(navController, startDestination = "start") {
                     composable("start") {
                         LaunchedEffect(key1 = Unit) {
                             val userData = googleAuthUiClient.getSignedInUser()
                             if (userData != null) {
-
+                                viewModel.userData = userData
                                 navController.navigate("app")
                             } else {
                                 navController.navigate("signIn")
@@ -85,7 +93,9 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     composable("app") {
-                        MainScreen()
+                        MainScreen(
+                            viewModel
+                        )
                     }
                 }
             }
